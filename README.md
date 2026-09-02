@@ -43,6 +43,10 @@ Todo el proceso se puede hacer **desde el navegador**, sin instalar nada:
    > simplemente manda a la gente al sitio equivocado.
 3. **Activa Pages**: *Settings → Pages → Source: GitHub Actions*. El workflow de despliegue ya
    viene incluido; cada `push` a `main` reconstruye y publica.
+   > Hazlo **antes** del primer despliegue. Si no, el workflow falla con `Create Pages site failed.
+   > Error: Resource not accessible by integration`: en un repositorio recién creado el permiso de
+   > las Actions es de solo lectura y no puede activar Pages por su cuenta. Actívalo a mano y
+   > relanza el despliegue desde la pestaña *Actions*.
 4. En un par de minutos tendrás tu app en `https://<tu-usuario>.github.io/<tu-repo>/`.
 5. **Planifica el curso** en la app y expórtalo con *Guardar en el archivo*.
 6. **Publícalo**: sube ese JSON a `public/calendars/` y añade su entrada en
