@@ -4,6 +4,17 @@ Todas las novedades relevantes de la app se documentan en este archivo.
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/) y el
 proyecto usa [versionado semántico](https://semver.org/lang/es/).
 
+## [0.7.25] — 2026-09-02
+
+### Corregido
+
+- **Cada despliegue tiene ya su propio almacén en el navegador.** `localStorage` es por **origen**,
+  no por ruta: dos despliegues del mismo usuario en GitHub Pages —por ejemplo el planificador de un
+  centro y la demo pública del proyecto— compartían los calendarios guardados, de modo que crear
+  uno de prueba en un sitio lo hacía aparecer en el otro. Las claves llevan ahora un prefijo con la
+  ruta del despliegue. Los datos que ya hubiera guardados **se adoptan automáticamente** en el
+  despliegue que los tenía, copiándolos (no moviéndolos): si algo fallara, siguen donde estaban.
+
 ## [0.7.24] — 2026-09-02
 
 ### Cambiado

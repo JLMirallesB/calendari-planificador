@@ -43,10 +43,28 @@ export const ORIGIN = {
 /** ¿Este despliegue es el del autor original? Para no dar el mismo nombre dos veces en el pie. */
 export const IS_ORIGIN = AUTHOR.name === ORIGIN.author
 
-export const STORAGE_KEY = 'calendari:data:v1'
-export const THEME_KEY = 'calendari:theme'
+// Claves de localStorage, con el prefijo del despliegue. localStorage es por ORIGEN, no por ruta:
+// dos despliegues del mismo usuario en GitHub Pages (p. ej. la demo y el del centro) comparten
+// almacén y sin prefijo se pisarían los calendarios.
+export const STORAGE_KEY = `${site.storagePrefix}data:v1`
+export const THEME_KEY = `${site.storagePrefix}theme`
 /** Anillo de copias de seguridad del almacén (ver src/state/backups.ts). */
-export const BACKUPS_KEY = 'calendari:backups:v1'
+export const BACKUPS_KEY = `${site.storagePrefix}backups:v1`
+export const LANG_KEY = `${site.storagePrefix}lang`
+
+/**
+ * Claves anteriores al prefijo, para el despliegue que ya tenía datos guardados con ellas
+ * (`legacyStorage` en site.config.json). En los demás la lista va vacía: la demo no debe adoptar
+ * los calendarios de nadie. Ver `src/lib/storage.ts`.
+ */
+export const CLAVES_HEREDADAS: { antigua: string; nueva: string }[] = site.legacyStorage
+  ? [
+      { antigua: 'calendari:data:v1', nueva: STORAGE_KEY },
+      { antigua: 'calendari:backups:v1', nueva: BACKUPS_KEY },
+      { antigua: 'calendari:theme', nueva: THEME_KEY },
+      { antigua: 'calendari:lang', nueva: LANG_KEY },
+    ]
+  : []
 
 // Dataset de legislación educativa de la Comunitat Valenciana (app «legis_cpmdem»).
 // Sitio estático en GitHub Pages; se consume por fetch (GET simple). Ver src/lib/cev.ts.

@@ -22,6 +22,10 @@ export interface Site {
   publicBaseUrl: string
   /** `publicBaseUrl` en el esquema que abren las apps de calendario. */
   webcalBase: string
+  /** Prefijo de las claves de `localStorage`, distinto en cada despliegue del mismo origen. */
+  storagePrefix: string
+  /** ¿Este despliegue adopta los datos guardados con las claves antiguas, sin prefijo? */
+  legacyStorage: boolean
   repoUrl: string
 }
 

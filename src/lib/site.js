@@ -55,6 +55,13 @@ export function deriveSite(raw) {
       email: req(maintainer.email, 'maintainer.email'),
     },
     cev: { datasetBase: withSlash(req(cev.datasetBase, 'cev.datasetBase')) },
+    // Dos despliegues del mismo usuario en GitHub Pages comparten ORIGEN («usuario.github.io»), y
+    // localStorage es por origen, no por ruta: sin este prefijo, la demo y el planificador del
+    // centro se pisarían los datos. Se saca de la ruta base, que es justo lo que los distingue.
+    storagePrefix: `calendari:${new URL(publicBaseUrl).pathname.replace(/^\/|\/$/g, '') || 'raiz'}:`,
+    // Solo el despliegue que ya tenía datos con las claves antiguas (sin prefijo) las adopta. En
+    // los demás la bandera no está, y así la demo no se trae los calendarios de nadie.
+    legacyStorage: cfg.legacyStorage === true,
     // Se saca de la URL pública, no del nombre del repo: con un dominio propio la app se sirve
     // en la raíz («/») y no bajo «/<repo>/».
     base: new URL(publicBaseUrl).pathname,

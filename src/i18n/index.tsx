@@ -4,7 +4,8 @@ import { ca } from './ca'
 
 export type Lang = 'es' | 'ca'
 
-export const LANG_KEY = 'calendari:lang'
+import { LANG_KEY } from '../config'
+export { LANG_KEY }
 
 const DICTS: Record<Lang, Dict> = { es, ca }
 const LOCALES: Record<Lang, string> = { es: 'es-ES', ca: 'ca-ES' }

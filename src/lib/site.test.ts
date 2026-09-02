@@ -27,6 +27,19 @@ describe('deriveSite', () => {
     expect(s.base).toBe('/calendario/')
   })
 
+  it('cada despliegue tiene su prefijo de almacenamiento', () => {
+    // localStorage es por origen: dos despliegues del mismo usuario en github.io comparten almacén.
+    expect(deriveSite(base).storagePrefix).toBe('calendari:calendario:')
+    expect(deriveSite({ ...base, github: { ...base.github, repo: 'otro' } }).storagePrefix).toBe('calendari:otro:')
+    // Con dominio propio la app vive en la raíz y no hay ruta que la distinga.
+    expect(deriveSite({ ...base, publicBaseUrl: 'https://calendari.ejemplo.org' }).storagePrefix).toBe('calendari:raiz:')
+  })
+
+  it('solo adopta las claves antiguas quien lo pide', () => {
+    expect(deriveSite(base).legacyStorage).toBe(false)
+    expect(deriveSite({ ...base, legacyStorage: true }).legacyStorage).toBe(true)
+  })
+
   it('con dominio propio la app se sirve en la raíz', () => {
     // Un fork con CNAME no vive bajo /<repo>/: si `base` se dedujera del nombre del repo,
     // la app cargaría los assets de una ruta que ahí no existe y saldría en blanco.
