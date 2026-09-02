@@ -1,0 +1,494 @@
+{
+  "id": "ejemplo-2627",
+  "name": "Conservatorio · Curso 2026-2027",
+  "community": "Ejemplo (adaptar a tu comunidad y localidad)",
+  "courseStart": "2026-09-07",
+  "courseEnd": "2027-06-18",
+  "restWeekdays": [
+    6,
+    0
+  ],
+  "schemaVersion": 1,
+  "updatedAt": "2026-08-11T11:14:49.000Z",
+  "profiles": [
+    {
+      "id": "docentes",
+      "name": "Docentes",
+      "color": "#2563eb"
+    },
+    {
+      "id": "alumnado",
+      "name": "Alumnado",
+      "color": "#16a34a"
+    },
+    {
+      "id": "gestion",
+      "name": "Gestión",
+      "color": "#9333ea"
+    }
+  ],
+  "terms": [
+    {
+      "id": "term-1",
+      "type": "Primer",
+      "name": "Primer trimestre",
+      "startDate": "2026-09-07",
+      "endDate": null,
+      "guidedEnabled": true,
+      "guided": {
+        "pruebaEvaluacionTeorica": {
+          "date": "2026-11-23",
+          "provisional": false
+        },
+        "sesionEvaluacion": {
+          "date": "2026-12-14",
+          "provisional": false
+        },
+        "itacaNotasInicio": {
+          "date": "2026-12-09",
+          "provisional": false
+        },
+        "itacaNotasUltimaModif": {
+          "date": "2026-12-16",
+          "provisional": false
+        },
+        "webFamiliaVisibilidad": {
+          "date": "2026-12-18",
+          "provisional": false
+        },
+        "impresionActas": {
+          "date": "2026-12-17",
+          "provisional": false
+        },
+        "firmaActas": {
+          "date": "2026-12-18",
+          "provisional": false
+        },
+        "plazoReclamacion": {
+          "start": "2026-12-18",
+          "end": "2026-12-21",
+          "provisional": true
+        },
+        "anticipacionSolicitudInicio": {
+          "date": null,
+          "provisional": false
+        },
+        "anticipacionSolicitudFin": {
+          "date": null,
+          "provisional": false
+        },
+        "anticipacionListadoProvisional": {
+          "date": null,
+          "provisional": false
+        },
+        "anticipacionListadoDefinitivo": {
+          "date": null,
+          "provisional": false
+        }
+      }
+    },
+    {
+      "id": "term-2",
+      "type": "Segundo",
+      "name": "Segundo trimestre",
+      "startDate": "2027-01-07",
+      "endDate": null,
+      "guidedEnabled": false,
+      "guided": {
+        "pruebaEvaluacionTeorica": {
+          "date": null,
+          "provisional": false
+        },
+        "sesionEvaluacion": {
+          "date": "2027-03-22",
+          "provisional": true
+        },
+        "itacaNotasInicio": {
+          "date": null,
+          "provisional": false
+        },
+        "itacaNotasUltimaModif": {
+          "date": null,
+          "provisional": false
+        },
+        "webFamiliaVisibilidad": {
+          "date": null,
+          "provisional": false
+        },
+        "impresionActas": {
+          "date": null,
+          "provisional": false
+        },
+        "firmaActas": {
+          "date": null,
+          "provisional": false
+        },
+        "plazoReclamacion": {
+          "start": null,
+          "end": null,
+          "provisional": false
+        },
+        "anticipacionSolicitudInicio": {
+          "date": null,
+          "provisional": false
+        },
+        "anticipacionSolicitudFin": {
+          "date": null,
+          "provisional": false
+        },
+        "anticipacionListadoProvisional": {
+          "date": null,
+          "provisional": false
+        },
+        "anticipacionListadoDefinitivo": {
+          "date": null,
+          "provisional": false
+        }
+      }
+    },
+    {
+      "id": "term-3",
+      "type": "Tercer",
+      "name": "Tercer trimestre",
+      "startDate": "2027-04-06",
+      "endDate": null,
+      "guidedEnabled": false,
+      "guided": {
+        "pruebaEvaluacionTeorica": {
+          "date": null,
+          "provisional": false
+        },
+        "sesionEvaluacion": {
+          "date": null,
+          "provisional": false
+        },
+        "itacaNotasInicio": {
+          "date": null,
+          "provisional": false
+        },
+        "itacaNotasUltimaModif": {
+          "date": null,
+          "provisional": false
+        },
+        "webFamiliaVisibilidad": {
+          "date": null,
+          "provisional": false
+        },
+        "impresionActas": {
+          "date": null,
+          "provisional": false
+        },
+        "firmaActas": {
+          "date": null,
+          "provisional": false
+        },
+        "plazoReclamacion": {
+          "start": null,
+          "end": null,
+          "provisional": false
+        },
+        "anticipacionSolicitudInicio": {
+          "date": null,
+          "provisional": false
+        },
+        "anticipacionSolicitudFin": {
+          "date": null,
+          "provisional": false
+        },
+        "anticipacionListadoProvisional": {
+          "date": null,
+          "provisional": false
+        },
+        "anticipacionListadoDefinitivo": {
+          "date": null,
+          "provisional": false
+        }
+      }
+    },
+    {
+      "id": "term-ant",
+      "type": "Anticipacion",
+      "name": "Anticipación",
+      "startDate": "2027-05-03",
+      "endDate": null,
+      "guidedEnabled": true,
+      "guided": {
+        "pruebaEvaluacionTeorica": {
+          "date": null,
+          "provisional": false
+        },
+        "sesionEvaluacion": {
+          "date": "2027-05-24",
+          "provisional": true
+        },
+        "itacaNotasInicio": {
+          "date": null,
+          "provisional": false
+        },
+        "itacaNotasUltimaModif": {
+          "date": null,
+          "provisional": false
+        },
+        "webFamiliaVisibilidad": {
+          "date": null,
+          "provisional": false
+        },
+        "impresionActas": {
+          "date": null,
+          "provisional": false
+        },
+        "firmaActas": {
+          "date": null,
+          "provisional": false
+        },
+        "plazoReclamacion": {
+          "start": null,
+          "end": null,
+          "provisional": false
+        },
+        "anticipacionSolicitudInicio": {
+          "date": "2027-05-03",
+          "provisional": false
+        },
+        "anticipacionSolicitudFin": {
+          "date": "2027-05-07",
+          "provisional": false
+        },
+        "anticipacionListadoProvisional": {
+          "date": "2027-05-12",
+          "provisional": false
+        },
+        "anticipacionListadoDefinitivo": {
+          "date": "2027-05-17",
+          "provisional": false
+        }
+      }
+    },
+    {
+      "id": "term-ord",
+      "type": "Ordinaria",
+      "name": "Ordinaria / Final",
+      "startDate": "2027-05-31",
+      "endDate": null,
+      "guidedEnabled": false,
+      "guided": {
+        "pruebaEvaluacionTeorica": {
+          "date": null,
+          "provisional": false
+        },
+        "sesionEvaluacion": {
+          "date": "2027-06-15",
+          "provisional": true
+        },
+        "itacaNotasInicio": {
+          "date": null,
+          "provisional": false
+        },
+        "itacaNotasUltimaModif": {
+          "date": null,
+          "provisional": false
+        },
+        "webFamiliaVisibilidad": {
+          "date": null,
+          "provisional": false
+        },
+        "impresionActas": {
+          "date": null,
+          "provisional": false
+        },
+        "firmaActas": {
+          "date": null,
+          "provisional": false
+        },
+        "plazoReclamacion": {
+          "start": null,
+          "end": null,
+          "provisional": false
+        },
+        "anticipacionSolicitudInicio": {
+          "date": null,
+          "provisional": false
+        },
+        "anticipacionSolicitudFin": {
+          "date": null,
+          "provisional": false
+        },
+        "anticipacionListadoProvisional": {
+          "date": null,
+          "provisional": false
+        },
+        "anticipacionListadoDefinitivo": {
+          "date": null,
+          "provisional": false
+        }
+      }
+    },
+    {
+      "id": "term-ext",
+      "type": "Extraordinaria",
+      "name": "Extraordinaria",
+      "startDate": "2027-06-16",
+      "endDate": "2027-06-18",
+      "guidedEnabled": false,
+      "guided": {
+        "pruebaEvaluacionTeorica": {
+          "date": null,
+          "provisional": false
+        },
+        "sesionEvaluacion": {
+          "date": null,
+          "provisional": false
+        },
+        "itacaNotasInicio": {
+          "date": null,
+          "provisional": false
+        },
+        "itacaNotasUltimaModif": {
+          "date": null,
+          "provisional": false
+        },
+        "webFamiliaVisibilidad": {
+          "date": null,
+          "provisional": false
+        },
+        "impresionActas": {
+          "date": null,
+          "provisional": false
+        },
+        "firmaActas": {
+          "date": null,
+          "provisional": false
+        },
+        "plazoReclamacion": {
+          "start": null,
+          "end": null,
+          "provisional": false
+        },
+        "anticipacionSolicitudInicio": {
+          "date": null,
+          "provisional": false
+        },
+        "anticipacionSolicitudFin": {
+          "date": null,
+          "provisional": false
+        },
+        "anticipacionListadoProvisional": {
+          "date": null,
+          "provisional": false
+        },
+        "anticipacionListadoDefinitivo": {
+          "date": null,
+          "provisional": false
+        }
+      }
+    }
+  ],
+  "events": [
+    {
+      "id": "ev-navidad",
+      "title": "Vacaciones de Navidad",
+      "kind": "vacaciones",
+      "date": null,
+      "range": {
+        "start": "2026-12-21",
+        "end": "2027-01-06"
+      },
+      "provisional": false,
+      "profiles": [],
+      "notes": ""
+    },
+    {
+      "id": "ev-pascua",
+      "title": "Vacaciones de Pascua",
+      "kind": "vacaciones",
+      "date": null,
+      "range": {
+        "start": "2027-03-29",
+        "end": "2027-04-05"
+      },
+      "provisional": false,
+      "profiles": [],
+      "notes": ""
+    },
+    {
+      "id": "ev-fest-oct",
+      "title": "Festivo autonómico",
+      "kind": "festivoAutonomico",
+      "date": "2026-10-08",
+      "range": null,
+      "provisional": false,
+      "profiles": [],
+      "notes": ""
+    },
+    {
+      "id": "ev-fest-const",
+      "title": "Día de la Constitución",
+      "kind": "festivoAutonomico",
+      "date": "2026-12-06",
+      "range": null,
+      "provisional": false,
+      "profiles": [],
+      "notes": ""
+    },
+    {
+      "id": "ev-fest-local",
+      "title": "Festivo local",
+      "kind": "festivoLocal",
+      "date": "2026-10-23",
+      "range": null,
+      "provisional": false,
+      "profiles": [],
+      "notes": "Patrón de la localidad"
+    },
+    {
+      "id": "ev-recuperado",
+      "title": "Día lectivo recuperado",
+      "kind": "festivoALectivo",
+      "date": "2027-02-15",
+      "range": null,
+      "provisional": true,
+      "profiles": [],
+      "notes": "Festivo autonómico que pasa a ser lectivo por decisión del centro"
+    },
+    {
+      "id": "ev-claustro",
+      "title": "Claustro de inicio de curso",
+      "kind": "claustro",
+      "date": "2026-09-04",
+      "range": null,
+      "provisional": false,
+      "profiles": [
+        "docentes"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev-consejo",
+      "title": "Consejo escolar",
+      "kind": "consejoEscolar",
+      "date": "2026-10-19",
+      "range": null,
+      "provisional": false,
+      "profiles": [
+        "docentes"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ev-acceso",
+      "title": "Pruebas de acceso",
+      "kind": "pruebaAcceso",
+      "date": null,
+      "range": {
+        "start": "2027-05-24",
+        "end": "2027-05-28"
+      },
+      "provisional": true,
+      "profiles": [
+        "alumnado",
+        "docentes"
+      ],
+      "notes": ""
+    }
+  ]
+}

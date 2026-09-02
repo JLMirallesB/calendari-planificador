@@ -1,0 +1,33 @@
+{
+  "name": "calendario-conservatorio",
+  "private": true,
+  "version": "0.7.23",
+  "type": "module",
+  "description": "Planificador de calendario escolar y académico para conservatorios de música y danza",
+  "author": "José Luis Miralles (jlmirall.es)",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "prebuild": "node scripts/build-feeds.mjs",
+    "build": "tsc && vite build",
+    "build:feeds": "node scripts/build-feeds.mjs",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "qrcode-generator": "^2.0.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10",
+    "vitest": "^3.2.7"
+  }
+}

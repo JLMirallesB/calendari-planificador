@@ -1,0 +1,25 @@
+node_modules
+dist
+dist-ssr
+*.local
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+
+# Feeds ICS y vistas JSON generados automáticamente por scripts/build-feeds.mjs
+public/feeds/*
+!public/feeds/.gitkeep
+public/v/*
+!public/v/.gitkeep
+
+# Documentación interna del proyecto (solo local, no se sube al remoto)
+CLAUDE.md
+docs/PLAN.md
+
+# Claude Code — estado local de esta máquina, no del proyecto
+.claude/*
+!.claude/settings.json
+!.claude/commands/
+!.claude/agents/
+!.claude/skills/
+CLAUDE.local.md

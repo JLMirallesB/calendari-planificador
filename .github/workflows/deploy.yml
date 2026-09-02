@@ -1,0 +1,64 @@
+name: Deploy a GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Permisos necesarios para publicar en GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Evita despliegues concurrentes; no cancela uno en curso
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Antes de construir: si la lógica pura está rota, mejor no desplegar. Los feeds ICS que
+      # salen de aquí van directos a los calendarios de la gente suscrita.
+      - name: Tests
+        run: npm test
+
+      - name: Build (genera feeds ICS + app)
+        run: npm run build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+        with:
+          # Activa GitHub Pages automáticamente en el primer despliegue (usa el
+          # permiso pages: write). Evita tener que activarlo a mano en Settings.
+          enablement: true
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
