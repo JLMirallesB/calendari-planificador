@@ -53,6 +53,18 @@ Si solo quieres planificar tu curso y llevarte un PDF o un `.ics`, no necesitas 
 app funciona entera en el navegador. El fork hace falta únicamente para **publicar** calendarios a
 los que otras personas puedan suscribirse.
 
+### Mantenerte al día
+
+Tu fork trae un workflow que, una vez por semana, mira si aquí ha salido algo nuevo y te abre un
+**Pull Request** con los cambios. No fusiona nada por su cuenta: lo revisas y lo aceptas cuando te
+venga bien. Tu `site.config.json` y tus calendarios no entran en ese PR, así que actualizar no te
+deshace la configuración.
+
+Para que funcione tienes que **entrar una vez en la pestaña «Actions» de tu fork y activarlas**:
+GitHub desactiva las Actions en los repositorios recién forkeados. Y si pasan 60 días sin
+actividad, vuelve a desactivar los workflows programados; desde esa misma pestaña puedes
+relanzarlo a mano con *Run workflow*.
+
 ## Configuración
 
 Todo lo que distingue un despliegue de otro está en **`site.config.json`**, en la raíz. No hay que

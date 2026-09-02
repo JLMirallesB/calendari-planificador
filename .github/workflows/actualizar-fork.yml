@@ -1,0 +1,80 @@
+# Abre un Pull Request en TU fork cuando el proyecto original publica cambios.
+#
+# Este workflow no hace nada en el repositorio original: solo se activa en los forks, comparando el
+# nombre del repositorio con el de origen. Al forkear te lo llevas puesto y trabaja para ti.
+#
+# No hace merge por su cuenta: abre un PR y lo dejas ahí hasta que lo mires. Tu `site.config.json`
+# y tus calendarios no están en juego —el original no los toca—, pero un despliegue que se rompe
+# sin avisar es peor que un PR esperando.
+#
+# ⚠️ GitHub desactiva las Actions en los repositorios recién forkeados. Para que esto funcione,
+# entra una vez en la pestaña «Actions» de tu fork y dale a «I understand my workflows, go ahead
+# and enable them». Si pasan 60 días sin actividad, GitHub vuelve a desactivar los workflows
+# programados: puedes relanzarlo a mano desde esa misma pestaña con «Run workflow».
+
+name: Actualizar desde el proyecto original
+
+on:
+  schedule:
+    - cron: '0 6 * * 1' # lunes a las 6:00 UTC
+  workflow_dispatch: # y a mano cuando quieras
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  ORIGEN: JLMirallesB/calendari-planificador
+  RAMA: actualizar-desde-el-original
+
+jobs:
+  actualizar:
+    # En el repositorio original no hay nada que traer: se salta solo.
+    if: github.repository != 'JLMirallesB/calendari-planificador'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Traer los cambios del original
+        id: comparar
+        run: |
+          git remote add origen "https://github.com/${ORIGEN}.git"
+          git fetch --quiet origen main
+          nuevos=$(git rev-list --count HEAD..origen/main)
+          echo "nuevos=$nuevos" >> "$GITHUB_OUTPUT"
+          echo "Commits nuevos en el original: $nuevos"
+          if [ "$nuevos" -gt 0 ]; then
+            git log --oneline --no-decorate HEAD..origen/main | head -20 > /tmp/novedades.txt
+          fi
+
+      # La rama es una copia del original, no un merge hecho aquí: así, si tu fork ha tocado los
+      # mismos ficheros, el conflicto se ve en la interfaz del PR y lo resuelves con calma, en vez
+      # de que este workflow falle y te quedes sin aviso.
+      - name: Publicar la rama
+        if: steps.comparar.outputs.nuevos != '0'
+        run: git push --force origin refs/remotes/origen/main:refs/heads/${RAMA}
+
+      - name: Abrir el Pull Request
+        if: steps.comparar.outputs.nuevos != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh pr list --head "$RAMA" --state open --json number --jq 'length' | grep -qv '^0$'; then
+            echo "Ya hay un PR abierto para esta rama; no se abre otro."
+            exit 0
+          fi
+          {
+            echo "El proyecto original ha publicado **${{ steps.comparar.outputs.nuevos }} cambios** que tu copia todavía no tiene."
+            echo
+            sed 's/^/- /' /tmp/novedades.txt
+            echo
+            echo "Al fusionar, tu \`site.config.json\` y tus calendarios de \`public/calendars/\` se quedan como están: el original no los toca."
+            echo
+            echo "Si aparecen conflictos es que has modificado los mismos ficheros; resuélvelos desde aquí o en tu máquina."
+          } > /tmp/cuerpo.md
+          gh pr create --base main --head "$RAMA" \
+            --title "Actualizar desde el proyecto original" \
+            --body-file /tmp/cuerpo.md
