@@ -1,0 +1,21 @@
+{
+  "app": {
+    "name": "Calendari",
+    "tagline": "Planificador de curso",
+    "emoji": "📅",
+    "description": "Planificador de calendario escolar y académico para conservatorios de música y danza."
+  },
+  "github": {
+    "user": "jlmirallesb",
+    "repo": "calendari-planificador"
+  },
+  "publicBaseUrl": null,
+  "maintainer": {
+    "name": "José Luis Miralles",
+    "site": "https://jlmirall.es",
+    "email": "joseluismirallesbono@gmail.com"
+  },
+  "cev": {
+    "datasetBase": "https://jlmirallesb.github.io/legis_cpmdem/data/calendario/"
+  }
+}
