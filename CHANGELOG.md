@@ -4,6 +4,18 @@ Todas las novedades relevantes de la app se documentan en este archivo.
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/) y el
 proyecto usa [versionado semántico](https://semver.org/lang/es/).
 
+## [0.7.24] — 2026-09-02
+
+### Cambiado
+
+- **La documentación interna (`CLAUDE.md`, `docs/PLAN.md`) pasa a estar versionada.** Estaba fuera
+  de git por si el repositorio se hacía público algún día; ahora que el proyecto se publica desde
+  un repositorio espejo aparte, este se queda privado y no hay motivo para que su guía viva sin
+  copia ni historial.
+- Como consecuencia, **el `.gitignore` deja de sincronizarse** con el repositorio público: cada uno
+  necesita el suyo, porque el del espejo tiene que seguir ignorando su propio `CLAUDE.md`, que es
+  una nota local que no debe publicarse ni llegar a los forks.
+
 ## [0.7.23] — 2026-09-02
 
 ### Añadido
