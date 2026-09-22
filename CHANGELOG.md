@@ -4,6 +4,71 @@ Todas las novedades relevantes de la app se documentan en este archivo.
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/) y el
 proyecto usa [versionado semántico](https://semver.org/lang/es/).
 
+## [0.9.0] — 2026-09-21
+
+### Añadido
+
+- **Los asuntos particulares, a la vista del claustro.** Un interruptor «Asuntos particulares» en la
+  vista por perfil (`#/ver`), en Imprimir y en el compacto del editor señala qué días se pueden
+  **solicitar**: fondo verde los que sí, apagados los que no, y el motivo al pasar por encima. En
+  ese modo el calendario llega hasta julio, porque los días sin clase de después del curso también
+  se pueden pedir. Va apagado por defecto (la mayor parte del curso estorba) y cada navegador
+  recuerda la preferencia. La leyenda recuerda que poder solicitar un día no significa que se
+  conceda.
+- En la vista por perfil los días salen del fichero publicado, **no se recalculan**: esa vista trae
+  el calendario filtrado por perfil, y filtrar esconde las sesiones de evaluación.
+
+### Corregido
+
+- En el panel de asuntos del editor: las casillas de número salían blancas en modo oscuro, los
+  títulos largos de los eventos se partían palabra a palabra, el resumen iba pegado en una línea, y
+  los hitos de la extraordinaria («Evaluación», «Exámenes», «Revisión») no decían de qué eran.
+
+## [0.8.1] — 2026-09-21
+
+### Corregido
+
+- **Asuntos particulares: un día de clase en medio de un periodo que abre ventana ya no se puede
+  solicitar.** Hasta ahora las ventanas se contaban hacia fuera desde el primer y el último día del
+  periodo, y lo que quedaba dentro no se tocaba: un festivo recuperado como lectivo en medio de una
+  fiesta quedaba libre mientras se bloqueaban los siete días de alrededor. Además, la misma fiesta
+  daba resultados opuestos según se tecleara como un evento de rango o como festivos sueltos. Vale
+  igual para Navidad, Pascua y las fiestas locales.
+
+## [0.8.0] — 2026-09-16
+
+### Añadido
+
+- **Asuntos particulares**: el calendario calcula, día a día, si se puede **solicitar** un permiso
+  por asuntos particulares, y publica el resultado para que lo consuma la hoja que gestione el
+  permiso (`public/feeds/<id>-asuntos.csv`, más el mismo contenido en `.json` y un
+  `.meta.json` hermano). Un día que se puede solicitar **no** es un día concedido: la concesión
+  depende de las necesidades del servicio, y el fichero no sabe nada de eso.
+  - Cada día se clasifica en **lectivo**, **no lectivo** (laborable sin clase) o **no laborable**,
+    porque el permiso son dos bolsas de días separadas y tratarlas igual bloquearía justo los días
+    que sí se pueden pedir.
+  - Las reglas **no están escritas en el código**: la norma que las motiva es autonómica y las
+    fiestas que abren ventana son municipales. El motor solo sabe de ventanas de N días lectivos
+    alrededor de un ancla, y qué ancla es cada cosa lo dice la configuración del calendario.
+  - Las ventanas se anclan al **id del evento**, no a su título ni a su clave de procedencia (la de
+    las fiestas locales del dataset CEV lleva la fecha dentro y cambiaría cada curso). Si el ancla
+    desaparece, sale un aviso en el panel de validación en vez de romperse en silencio.
+  - El `.meta.json` lleva `reglasIncompletas`: un calendario a medio rellenar produce días
+    solicitables de más, y quien consuma el fichero tiene que poder avisarlo.
+  - **Un solo fichero por calendario**, calculado sobre el calendario completo. Nada de variantes
+    por perfil: filtrar escondería las sesiones de evaluación y daría por solicitables días
+    bloqueados. Lo que impide que salga nada interno es una lista blanca de la descripción, de modo
+    que claustros, reuniones y actividades del centro no viajan a un fichero que se publica sin
+    contraseña.
+  - Panel nuevo en el editor para configurarlo, cerrado por defecto, con descarga del CSV.
+
+### Cambiado
+
+- El cómputo de fechas y de días lectivos vive ahora en **JS plano** (`dateCore.js`,
+  `lectiveCore.js`), como `icsCore.js`, para que puedan usarlo también los scripts de Node.
+  `dateUtils.ts` y `lectiveDays.ts` lo re-exportan: la API no cambia. De paso desaparece la copia
+  de los ayudantes de fecha que arrastraba `icsCore.js`.
+
 ## [0.7.25] — 2026-09-02
 
 ### Corregido

@@ -1,5 +1,6 @@
 import type { Calendar } from '../types'
 import { isLectiveDay, eventDates } from './lectiveDays'
+import { computeAsuntos } from './asuntos'
 
 /**
  * Validación **no bloqueante** de un calendario: detecta incoherencias y descuidos frecuentes, y
@@ -169,6 +170,35 @@ export function validateCalendar(cal: Calendar): ValidationIssue[] {
         params: { a: a.name, b: b.name, end: a.endDate, start: b.startDate! },
         target: { sectionId: 'terms', anchorId: `term-${a.id}` },
       })
+    }
+  }
+
+  // 8 · Reglas de asuntos particulares que no se pueden calcular. Importa avisar: el fichero se
+  //     publica igual, y sin este aviso un calendario a medio rellenar da días pedibles de más.
+  //     El caso típico es un ancla cuyo evento ha desaparecido en una re-sincronización.
+  if (cal.asuntos) {
+    const target = { sectionId: 'asuntos', anchorId: 'asuntos-panel' }
+    for (const regla of computeAsuntos(cal).reglasIncompletas) {
+      const [tipo, motivo] = regla.split(':')
+      if (tipo === 'ancla_no_encontrada' || tipo === 'ancla_sin_fechas') {
+        issues.push({
+          code: tipo,
+          severity: 'warning',
+          messageKey: tipo === 'ancla_no_encontrada' ? 'validate.asuntosAnchorMissing' : 'validate.asuntosAnchorEmpty',
+          params: { motivo },
+          target,
+        })
+      } else if (tipo === 'tramo_sin_sesion_ordinaria' || tipo === 'tramo_sin_sesion_extraordinaria') {
+        issues.push({
+          code: tipo,
+          severity: 'warning',
+          messageKey:
+            tipo === 'tramo_sin_sesion_ordinaria'
+              ? 'validate.asuntosTramoOrdinaria'
+              : 'validate.asuntosTramoExtraordinaria',
+          target,
+        })
+      }
     }
   }
 

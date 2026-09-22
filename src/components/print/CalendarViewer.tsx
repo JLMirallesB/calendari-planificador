@@ -6,6 +6,8 @@ import { PUBLIC_BASE_URL } from '../../config'
 import { downloadICS, feedWebcalUrl } from '../../lib/ics'
 import { occurrenceLabels, useI18n } from '../../i18n'
 import PrintSheet from './PrintSheet'
+import type { AsuntosRow } from '../../lib/asuntos'
+import { AsuntosToggle, asuntosVista, useAsuntosVisible } from './asuntosVista'
 
 const BASE = import.meta.env.BASE_URL
 
@@ -23,6 +25,8 @@ export default function CalendarViewer() {
   const [mode, setMode] = useState<Mode>('lista')
   const [showAnalysis, setShowAnalysis] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [asuntosRows, setAsuntosRows] = useState<AsuntosRow[] | null>(null)
+  const [verAsuntos, setVerAsuntos] = useAsuntosVisible()
 
   useEffect(() => {
     let active = true
@@ -38,6 +42,31 @@ export default function CalendarViewer() {
         }
       })
       .catch(() => active && setStatus('error'))
+    return () => {
+      active = false
+    }
+  }, [token])
+
+  // Asuntos particulares: se leen del fichero publicado y NO se recalculan aquí. Esta vista trae
+  // el calendario filtrado por perfil, y filtrar esconde las sesiones de evaluación (son solo de
+  // docentes y gestión): recalcular con él daría por solicitables días que están bloqueados.
+  // El fichero se calcula una vez, sobre el calendario completo, y es el mismo para todos.
+  useEffect(() => {
+    let active = true
+    const calId = token.slice(0, token.lastIndexOf('-'))
+    setAsuntosRows(null)
+    if (!calId) return
+    fetch(`${BASE}feeds/${calId}-asuntos.json`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (!active || !Array.isArray(j)) return
+        setAsuntosRows(j)
+        // Quien lo dejó encendido la última vez quiere verlo, y solo se ve en el compacto.
+        if (verAsuntos) setMode('compacto')
+      })
+      .catch(() => {
+        /* calendario sin asuntos, o sin red: simplemente no se ofrece el interruptor */
+      })
     return () => {
       active = false
     }
@@ -109,6 +138,17 @@ export default function CalendarViewer() {
               {t('print.analysisToggle')}
             </label>
           </div>
+          {asuntosRows && (
+            <div className="field" style={{ margin: 0 }}>
+              <AsuntosToggle
+                checked={verAsuntos}
+                onChange={(v) => {
+                  setVerAsuntos(v)
+                  if (v) setMode('compacto')
+                }}
+              />
+            </div>
+          )}
           <div className="field" style={{ margin: 0, marginLeft: 'auto', alignSelf: 'flex-end' }}>
             <div className="btn-group">
               <button className="btn btn-primary" onClick={handlePrint}>
@@ -141,6 +181,7 @@ export default function CalendarViewer() {
         mode={mode}
         showAnalysis={showAnalysis}
         viewUrl={viewUrl}
+        asuntos={verAsuntos ? asuntosVista(asuntosRows) : null}
       />
     </>
   )

@@ -1,15 +1,21 @@
-import type { Calendar, CalEvent, ISODate, Term, TermType } from '../types'
+import type { Calendar, ISODate, Term, TermType } from '../types'
 import {
   addDays,
   daysBetween,
   eachDay,
   nearestMonday,
-  parseISO,
   weekday,
   weeksSpanned,
   WEEKDAY_ORDER,
   WEEKDAY_NAMES,
 } from './dateUtils'
+import { habilSets, isHabil, isLectiveDay, lectiveSets } from './lectiveCore'
+
+// El cómputo básico —qué día es lectivo, qué día es hábil— vive en `lectiveCore.js`, JS plano,
+// porque también lo necesitan los scripts de Node, que importan sin transpilar. Se re-exporta
+// aquí para no cambiar de sitio a quien ya lo usaba.
+export { eventDates, habilSets, isHabil, isLectiveDay, lectiveSets } from './lectiveCore'
+export type { HabilSets, LectiveSets } from './lectiveCore'
 
 /**
  * Reparte el curso en tres trimestres de duración (en días de calendario) lo más
@@ -24,39 +30,6 @@ export function equalTrimesterStarts(
   const segundo = nearestMonday(addDays(courseStart, Math.round(total / 3)))
   const tercer = nearestMonday(addDays(courseStart, Math.round((2 * total) / 3)))
   return { primer: courseStart, segundo, tercer }
-}
-
-/** Expande un evento a la lista de fechas ISO que ocupa (puntual o rango). */
-export function eventDates(ev: CalEvent): ISODate[] {
-  if (ev.date) return [ev.date]
-  if (ev.range) return eachDay(ev.range.start, ev.range.end)
-  return []
-}
-
-interface HabilSets {
-  festivo: Set<ISODate> // festivos autonómicos y locales (inhábiles)
-  overrides: Set<ISODate> // festivos convertidos en lectivo (hábiles)
-}
-function habilSets(cal: Calendar): HabilSets {
-  const festivo = new Set<ISODate>()
-  const overrides = new Set<ISODate>()
-  for (const ev of cal.events) {
-    if (ev.kind === 'festivoAutonomico' || ev.kind === 'festivoLocal') {
-      eventDates(ev).forEach((d) => festivo.add(d))
-    } else if (ev.kind === 'festivoALectivo') {
-      eventDates(ev).forEach((d) => overrides.add(d))
-    }
-  }
-  return { festivo, overrides }
-}
-
-/** Día hábil (administrativo): no sábado/domingo y no festivo (autonómico/local). */
-export function isHabil(cal: Calendar, iso: ISODate, sets?: HabilSets): boolean {
-  const wd = weekday(iso)
-  if (wd === 0 || wd === 6) return false // domingo / sábado
-  const s = sets ?? habilSets(cal)
-  if (s.overrides.has(iso)) return true // festivo recuperado como lectivo → hábil
-  return !s.festivo.has(iso)
 }
 
 /**
@@ -76,49 +49,10 @@ export function reclamacionRange(cal: Calendar, comunicacion: ISODate): { start:
   return { start, end: d }
 }
 
-interface LectiveSets {
-  nonLective: Set<ISODate> // vacaciones + festivos (autonómicos y locales)
-  overrides: Set<ISODate> // festivos convertidos en lectivos
-}
-
-function buildSets(cal: Calendar): LectiveSets {
-  const nonLective = new Set<ISODate>()
-  const overrides = new Set<ISODate>()
-  for (const ev of cal.events) {
-    const dates = eventDates(ev)
-    if (
-      ev.kind === 'vacaciones' ||
-      ev.kind === 'festivoAutonomico' ||
-      ev.kind === 'festivoLocal' ||
-      ev.kind === 'noLaborable'
-    ) {
-      dates.forEach((d) => nonLective.add(d))
-    } else if (ev.kind === 'festivoALectivo') {
-      dates.forEach((d) => overrides.add(d))
-    }
-  }
-  return { nonLective, overrides }
-}
-
-/**
- * Un día es lectivo si está dentro del curso y:
- *  - es un override "festivo→lectivo" (gana siempre), o
- *  - no es día de descanso semanal y no cae en vacaciones/festivo.
- */
-export function isLectiveDay(cal: Calendar, iso: ISODate, sets?: LectiveSets): boolean {
-  if (!cal.courseStart || !cal.courseEnd) return false
-  if (parseISO(iso) < parseISO(cal.courseStart) || parseISO(iso) > parseISO(cal.courseEnd)) return false
-  const s = sets ?? buildSets(cal)
-  if (s.overrides.has(iso)) return true
-  if (cal.restWeekdays.includes(weekday(iso))) return false
-  if (s.nonLective.has(iso)) return false
-  return true
-}
-
 /** Total de días lectivos del curso completo. */
 export function totalLectiveDays(cal: Calendar): number {
   if (!cal.courseStart || !cal.courseEnd) return 0
-  const sets = buildSets(cal)
+  const sets = lectiveSets(cal)
   let count = 0
   for (const iso of eachDay(cal.courseStart, cal.courseEnd)) {
     if (isLectiveDay(cal, iso, sets)) count++
@@ -192,7 +126,7 @@ export interface TermStats {
 
 /** Estadísticas por trimestre: semanas, días lectivos y recuento por día de la semana. */
 export function computeTermStats(cal: Calendar): TermStats[] {
-  const sets = buildSets(cal)
+  const sets = lectiveSets(cal)
   return computeTermRanges(cal).map(({ term, start, end }) => {
     const byWeekdayMap = new Map<number, number>()
     WEEKDAY_ORDER.forEach((wd) => byWeekdayMap.set(wd, 0))

@@ -236,6 +236,30 @@ table.mini td.fest {
 table.mini td.clickable {
   cursor: pointer;
 }
+/* Modo asuntos particulares: lo que no se puede solicitar se apaga, y lo que sí lleva fondo
+   verde. Apagado con opacidad y no con color, para que se sigan distinguiendo vacaciones y
+   festivos. Y fondo, no anillo: el anillo verde ya significa «festivo recuperado», y el morado
+   «inicio de trimestre»; un anillo más taparía a esos o se confundiría con ellos. */
+table.mini td.asuntos-no {
+  opacity: 0.3;
+}
+table.mini td.asuntos-si {
+  background: color-mix(in srgb, var(--lective) 26%, transparent);
+  font-weight: 700;
+}
+.asuntos-si-swatch {
+  background: color-mix(in srgb, var(--lective) 26%, transparent);
+}
+.asuntos-no-swatch {
+  background: color-mix(in srgb, var(--text-muted) 20%, transparent);
+  opacity: 0.3;
+}
+.asuntos-legend {
+  margin-top: 16px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
 table.mini td.clickable:hover {
   outline: 2px solid var(--accent);
   outline-offset: -2px;
@@ -417,6 +441,8 @@ table.mini td .ev-dot {
   table.mini td.term-start,
   table.mini td.recovered,
   table.mini td.nonlective,
+  table.mini td.asuntos-si,
+  .asuntos-si-swatch,
   table.mini td.course-edge {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;

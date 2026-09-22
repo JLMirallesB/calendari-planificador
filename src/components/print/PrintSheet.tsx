@@ -4,6 +4,7 @@ import ListLayout from './ListLayout'
 import QrCode from './QrCode'
 import CompactCalendar from './CompactCalendar'
 import WeekdayAnalysis from './WeekdayAnalysis'
+import type { AsuntosVista } from './asuntosVista'
 
 /** Hoja imprimible (cabecera + lista/compacto + análisis). Compartida por Imprimir y Ver. */
 export default function PrintSheet({
@@ -13,6 +14,7 @@ export default function PrintSheet({
   mode,
   showAnalysis,
   viewUrl,
+  asuntos,
 }: {
   cal: Calendar
   profileId: string | null
@@ -25,6 +27,8 @@ export default function PrintSheet({
    * navegador y no hay ninguna dirección que enseñar, así que no se pinta el QR.
    */
   viewUrl?: string
+  /** Días de asuntos particulares a señalar en el compacto (null = modo apagado). */
+  asuntos?: AsuntosVista | null
 }) {
   const { t, fmt } = useI18n()
   return (
@@ -48,7 +52,7 @@ export default function PrintSheet({
       {mode === 'lista' ? (
         <ListLayout cal={cal} profileId={profileId} />
       ) : (
-        <CompactCalendar cal={cal} profileId={profileId} />
+        <CompactCalendar cal={cal} profileId={profileId} asuntos={asuntos} />
       )}
       {showAnalysis && <WeekdayAnalysis cal={cal} />}
       {viewUrl && (

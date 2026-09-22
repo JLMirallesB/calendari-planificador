@@ -1,7 +1,13 @@
 import type { ISODate } from '../types'
+import { addDays, eachDay, parseISO, toISO, weekday } from './dateCore'
 
 // Todas las fechas se manejan como cadenas ISO `YYYY-MM-DD`. Para evitar desfases por
 // zona horaria, construimos objetos Date en horario local (no UTC).
+//
+// Los cinco ayudantes básicos (parseISO, toISO, addDays, weekday, eachDay) viven en
+// `dateCore.js`, JS plano, porque también los necesitan `icsCore.js` y `scripts/`, que
+// importan sin transpilar. Aquí se re-exportan para que ningún módulo de la app lo note.
+export { addDays, eachDay, parseISO, toISO, weekday }
 
 export const WEEKDAY_NAMES = [
   'Domingo',
@@ -31,44 +37,8 @@ export const MONTH_NAMES = [
   'Diciembre',
 ] as const
 
-export function parseISO(iso: ISODate): Date {
-  const [y, m, d] = iso.split('-').map(Number)
-  return new Date(y, m - 1, d)
-}
-
-export function toISO(date: Date): ISODate {
-  const y = date.getFullYear()
-  const m = String(date.getMonth() + 1).padStart(2, '0')
-  const d = String(date.getDate()).padStart(2, '0')
-  return `${y}-${m}-${d}`
-}
-
-export function addDays(iso: ISODate, days: number): ISODate {
-  const d = parseISO(iso)
-  d.setDate(d.getDate() + days)
-  return toISO(d)
-}
-
-/** getDay(): 0=domingo … 6=sábado. */
-export function weekday(iso: ISODate): number {
-  return parseISO(iso).getDay()
-}
-
 export function isValidISO(v: unknown): v is ISODate {
   return typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && !isNaN(parseISO(v).getTime())
-}
-
-/** Devuelve todas las fechas (inclusive) entre start y end. */
-export function eachDay(start: ISODate, end: ISODate): ISODate[] {
-  const out: ISODate[] = []
-  if (parseISO(start) > parseISO(end)) return out
-  let cur = start
-  // Límite de seguridad para evitar bucles infinitos por datos corruptos.
-  for (let i = 0; i < 5000 && parseISO(cur) <= parseISO(end); i++) {
-    out.push(cur)
-    cur = addDays(cur, 1)
-  }
-  return out
 }
 
 /** Lunes de la semana (ISO, lunes como primer día) que contiene la fecha dada. */

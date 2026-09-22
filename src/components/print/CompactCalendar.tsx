@@ -9,6 +9,19 @@ import { occurrencesByDay, monthsInRange, captionsByMonth, monthKey } from '../.
 import { eachDay, parseISO, toISO, WEEKDAY_ORDER } from '../../lib/dateUtils'
 import { occurrenceLabels, useI18n, type Formatters, type TFunc } from '../../i18n'
 import CourseSummary from './CourseSummary'
+import type { AsuntosRow } from '../../lib/asuntos'
+import type { AsuntosVista } from './asuntosVista'
+
+/**
+ * Texto de un día en modo asuntos particulares. «Se puede solicitar», nunca «disponible»: que
+ * se pueda pedir no significa que se conceda, eso depende de las necesidades del servicio.
+ */
+function asuntoTxt(a: AsuntosRow, t: TFunc): string {
+  const base = a.pedible
+    ? t('asuntos.canRequest')
+    : `${t('asuntos.cannotRequest')}: ${t(`asuntos.motivo.${a.motivoPrincipal}`)}`
+  return a.provisional ? `${base} (${t('common.provisional').toLowerCase()})` : base
+}
 
 // Emoji para la leyenda bajo cada mes (mismo set que el ICS: KIND_EMOJI / GUIDED_EMOJI).
 function captionIcon(o: Occurrence): string {
@@ -22,6 +35,7 @@ interface DayInfo {
   lective: boolean
   termName?: string
   courseEdge?: 'start' | 'end'
+  asunto?: AsuntosRow
 }
 
 interface Props {
@@ -29,9 +43,11 @@ interface Props {
   profileId: string | null
   interactive?: boolean
   onDayClick?: (iso: string) => void
+  /** Si viene, se atenúan los días que no se pueden solicitar como asuntos particulares. */
+  asuntos?: AsuntosVista | null
 }
 
-export default function CompactCalendar({ cal, profileId, interactive = false, onDayClick }: Props) {
+export default function CompactCalendar({ cal, profileId, interactive = false, onDayClick, asuntos }: Props) {
   const { t, fmt } = useI18n()
   const [hover, setHover] = useState<{ info: DayInfo; x: number; y: number } | null>(null)
 
@@ -39,7 +55,10 @@ export default function CompactCalendar({ cal, profileId, interactive = false, o
     return <p className="empty">{t('print.needDatesCompact')}</p>
   }
   const byDay = occurrencesByDay(cal, profileId, occurrenceLabels(t))
-  const monthList = monthsInRange(cal.courseStart, cal.courseEnd)
+  // En modo asuntos se enseña hasta julio: los días sin clase de después del curso también
+  // se pueden solicitar, y un docente que busca uno en julio tiene que poder verlo.
+  const hastaMeses = asuntos && asuntos.hasta > cal.courseEnd ? asuntos.hasta : cal.courseEnd
+  const monthList = monthsInRange(cal.courseStart, hastaMeses)
   const termStarts = new Map<string, string>()
   for (const term of cal.terms) if (term.startDate) termStarts.set(term.startDate, term.name)
 
@@ -102,6 +121,7 @@ export default function CompactCalendar({ cal, profileId, interactive = false, o
                 t={t}
                 interactive={interactive}
                 onDayClick={onDayClick}
+                asuntos={asuntos ?? null}
                 onHover={(info, x, y) => setHover({ info, x, y })}
                 onLeave={() => setHover(null)}
               />
@@ -109,7 +129,7 @@ export default function CompactCalendar({ cal, profileId, interactive = false, o
           </div>
         </div>
       ))}
-      <Legend t={t} />
+      <Legend t={t} asuntos={!!asuntos} />
       {interactive && hover && <DayTooltip hover={hover} t={t} fmt={fmt} />}
     </>
   )
@@ -158,6 +178,15 @@ function DayTooltip({
         </div>
       ))}
       {info.occ.length === 0 && !info.termName && status && <div className="day-tip-row">{status}</div>}
+      {info.asunto && (
+        <div className="day-tip-row">
+          <span
+            className="day-tip-dot"
+            style={{ background: info.asunto.pedible ? 'var(--lective)' : 'var(--text-muted)' }}
+          />
+          <strong>{asuntoTxt(info.asunto, t)}</strong>
+        </div>
+      )}
     </div>
   )
   return typeof document !== 'undefined' ? createPortal(tip, document.body) : tip
@@ -184,6 +213,7 @@ function MiniMonth({
   t,
   interactive,
   onDayClick,
+  asuntos,
   onHover,
   onLeave,
 }: {
@@ -198,6 +228,7 @@ function MiniMonth({
   t: TFunc
   interactive: boolean
   onDayClick?: (iso: string) => void
+  asuntos: AsuntosVista | null
   onHover: (info: DayInfo, x: number, y: number) => void
   onLeave: () => void
 }) {
@@ -257,8 +288,12 @@ function MiniMonth({
                 const courseEdge = iso === cal.courseStart ? 'start' : iso === cal.courseEnd ? 'end' : undefined
                 if (courseEdge) cls += ' course-edge'
                 if (interactive) cls += ' clickable'
-                const title = interactive ? undefined : [termName, ...occ.map((o) => o.title)].filter(Boolean).join(' · ')
-                const info: DayInfo = { iso, occ, lective, termName, courseEdge }
+                const asunto = asuntos?.dias.get(iso)
+                if (asunto) cls += asunto.pedible ? ' asuntos-si' : ' asuntos-no'
+                const title = interactive
+                  ? undefined
+                  : [termName, ...occ.map((o) => o.title), asunto && asuntoTxt(asunto, t)].filter(Boolean).join(' · ')
+                const info: DayInfo = { iso, occ, lective, termName, courseEdge, asunto }
                 return (
                   <td
                     key={ci}
@@ -298,9 +333,22 @@ function MiniMonth({
   )
 }
 
-function Legend({ t }: { t: TFunc }) {
+function Legend({ t, asuntos }: { t: TFunc; asuntos: boolean }) {
   return (
     <>
+      {asuntos && (
+        <div className="asuntos-legend">
+          <div className="tag-legend">
+            <span className="swatch">
+              <span className="box asuntos-si-swatch" /> {t('asuntos.legendSi')}
+            </span>
+            <span className="swatch">
+              <span className="box asuntos-no-swatch" /> {t('asuntos.legendNo')}
+            </span>
+          </div>
+          <p className="inline-note" style={{ marginTop: 6 }}>{t('asuntos.viewHelp')}</p>
+        </div>
+      )}
       <div className="tag-legend" style={{ marginTop: 16 }}>
         <span className="swatch">
           <span className="box course-edge-swatch" /> {t('print.legendCourseEdge')}

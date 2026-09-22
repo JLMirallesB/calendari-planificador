@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { useStore } from '../../state/CalendarStore'
 import { useI18n } from '../../i18n'
@@ -10,12 +10,15 @@ import CourseDates from './CourseDates'
 import ProfilesEditor from './ProfilesEditor'
 import EventList from './EventList'
 import TermsEditor from './TermsEditor'
+import AsuntosPanel from './AsuntosPanel'
 import JsonImportExport from './JsonImportExport'
 import BackupsPanel from './BackupsPanel'
 import ValidationPanel from './ValidationPanel'
 import LectiveCounter from '../counter/LectiveCounter'
 import TermWeekdayStats from '../counter/TermWeekdayStats'
 import CompactCalendar from '../print/CompactCalendar'
+import { computeAsuntos } from '../../lib/asuntos'
+import { AsuntosToggle, asuntosVista, useAsuntosVisible } from '../print/asuntosVista'
 
 export default function EditorPage() {
   const { current } = useStore()
@@ -32,6 +35,8 @@ function EditorInner() {
   const { current, patchCurrent, importCalendar, undo, redo } = useStore()
   const { t } = useI18n()
   const { request, focus } = useEditorFocus()
+  const [verAsuntos, setVerAsuntos] = useAsuntosVisible()
+  const filasAsuntos = useMemo(() => (current?.asuntos ? computeAsuntos(current).rows : null), [current])
 
   // Atajos de teclado deshacer/rehacer. Se ignoran cuando el foco está en un campo de texto, para
   // no pisar el deshacer nativo de escritura (Ctrl+Z dentro de un input sigue deshaciendo letras).
@@ -79,7 +84,14 @@ function EditorInner() {
         <aside className="editor-left">
           <div className="card">
             <div className="section-title">{t('print.formatCompact')}</div>
-            <CompactCalendar cal={cal} profileId={null} interactive onDayClick={onDayClick} />
+            {filasAsuntos && <AsuntosToggle checked={verAsuntos} onChange={setVerAsuntos} />}
+            <CompactCalendar
+              cal={cal}
+              profileId={null}
+              interactive
+              onDayClick={onDayClick}
+              asuntos={verAsuntos ? asuntosVista(filasAsuntos) : null}
+            />
           </div>
         </aside>
 
@@ -121,6 +133,8 @@ function EditorInner() {
             sectionId="events-otro"
             onChange={(events) => patchCurrent((c) => ({ ...c, events }))}
           />
+
+          <AsuntosPanel cal={cal} onChange={(asuntos) => patchCurrent((c) => ({ ...c, asuntos }))} />
 
           <JsonImportExport
             cal={cal}

@@ -79,6 +79,31 @@ describe('guardar y volver a leer', () => {
     expect(parseCalendar(serializeCalendar(ida))).toEqual(original)
   })
 
+  it('la configuración de asuntos particulares sobrevive a la ida y vuelta', () => {
+    // Si `coerceCalendar` no la contempla, se pierde en cada importación y en el JSON de vista
+    // publicado, sin decir nada.
+    const original = coerceCalendar({
+      id: 'cal_asuntos',
+      name: 'Con asuntos',
+      courseStart: '2026-09-07',
+      courseEnd: '2027-06-18',
+      asuntos: {
+        inicioCurso: 7,
+        finCurso: 7,
+        evaluacionKeys: ['sesionEvaluacion', 'evaluacionExtraordinaria'],
+        tramoIncluyeAnticipacion: false,
+        ventanas: [{ code: 'navidad', eventIds: ['ev-navidad'], antes: 7, despues: 7 }],
+      },
+    })
+    expect(original.asuntos?.ventanas[0].eventIds).toEqual(['ev-navidad'])
+    expect(parseCalendar(serializeCalendar(original))).toEqual(original)
+  })
+
+  it('un calendario sin asuntos no se los inventa', () => {
+    // Ausente no es lo mismo que «con los valores por defecto»: sin esto no se publica nada.
+    expect(coerceCalendar({ id: 'cal_x', name: 'Sin asuntos' }).asuntos).toBeUndefined()
+  })
+
   it('un JSON que no es un calendario da error legible al importar', () => {
     expect(() => parseCalendar('[]')).toThrow()
     expect(() => parseCalendar('no soy json')).toThrow()

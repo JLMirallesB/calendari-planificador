@@ -2,23 +2,10 @@
 // calendario). Escrito en JavaScript plano (ESM) para poder reutilizarse tanto en la
 // app (vía icsCore.d.ts) como en scripts/build-feeds.mjs (Node), sin duplicar lógica.
 
-// ---- Helpers de fecha (locales, sin desfase por zona horaria) ----
+import { addDays } from './dateCore.js'
 
-function parseISO(iso) {
-  const [y, m, d] = iso.split('-').map(Number)
-  return new Date(y, m - 1, d)
-}
-function toISO(date) {
-  const y = date.getFullYear()
-  const m = String(date.getMonth() + 1).padStart(2, '0')
-  const d = String(date.getDate()).padStart(2, '0')
-  return `${y}-${m}-${d}`
-}
-function addDays(iso, days) {
-  const d = parseISO(iso)
-  d.setDate(d.getDate() + days)
-  return toISO(d)
-}
+// ---- Helpers de formato ICS ----
+
 /** Formato de fecha ICS all-day: YYYYMMDD. */
 function icsDate(iso) {
   return iso.replace(/-/g, '')

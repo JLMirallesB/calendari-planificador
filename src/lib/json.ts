@@ -9,6 +9,7 @@ import type {
   TermType,
 } from '../types'
 import { isValidISO } from './dateUtils'
+import { normalizeAsuntosConfig } from './asuntos'
 import { withDefaultGuidedProfiles } from './guided'
 import { es } from '../i18n/es'
 import { ca } from '../i18n/ca'
@@ -300,6 +301,9 @@ export function coerceCalendar(v: unknown): Calendar {
   const terms = Array.isArray(o.terms) && o.terms.length ? o.terms.map(coerceTerm) : defaultTerms()
   const events = Array.isArray(o.events) ? o.events.map(coerceEvent) : []
   const source = coerceSource(o.source)
+  // Solo si el JSON lo trae: la ausencia significa «este calendario no publica asuntos», que no
+  // es lo mismo que «con los valores por defecto».
+  const asuntos = o.asuntos ? normalizeAsuntosConfig(o.asuntos as Record<string, unknown>) : undefined
   return {
     id: asStr(o.id, makeId('cal')),
     name: asStr(o.name, 'Calendario importado'),
@@ -312,6 +316,7 @@ export function coerceCalendar(v: unknown): Calendar {
     terms,
     events,
     ...(source ? { source } : {}),
+    ...(asuntos ? { asuntos } : {}),
     schemaVersion: SCHEMA_VERSION,
     updatedAt: asStr(o.updatedAt) || new Date().toISOString(),
   }

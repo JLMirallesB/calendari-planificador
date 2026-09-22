@@ -51,6 +51,8 @@ export const THEME_KEY = `${site.storagePrefix}theme`
 /** Anillo de copias de seguridad del almacén (ver src/state/backups.ts). */
 export const BACKUPS_KEY = `${site.storagePrefix}backups:v1`
 export const LANG_KEY = `${site.storagePrefix}lang`
+/** ¿Se ven los días de asuntos particulares en el calendario compacto? (preferencia del visitante) */
+export const ASUNTOS_VIEW_KEY = `${site.storagePrefix}asuntos:ver`
 
 /**
  * Claves anteriores al prefijo, para el despliegue que ya tenía datos guardados con ellas

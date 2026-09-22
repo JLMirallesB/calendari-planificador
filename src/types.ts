@@ -1,5 +1,9 @@
 // Modelo de datos de la app. Todas las fechas se guardan como cadenas ISO `YYYY-MM-DD`.
 
+import type { AsuntosConfig } from './lib/asuntos'
+
+export type { AsuntosConfig, VentanaAsuntos, MotivoAsuntos, TipoDiaAsuntos } from './lib/asuntos'
+
 export type ISODate = string // "2026-09-08"
 
 /** Perfiles de visibilidad (docentes, alumnado, familias, administración…). */
@@ -157,6 +161,13 @@ export interface Calendar {
   events: CalEvent[]
   /** Procedencia externa (si el calendario se creó desde un dataset). Opcional. */
   source?: CalendarSource
+  /**
+   * Reglas de asuntos particulares (permiso por días propios). Opcional y sin valor por defecto:
+   * un calendario sin esto no publica ningún fichero de asuntos. Las reglas concretas —cuántos
+   * días, qué fiestas abren ventana, qué hitos cuentan como evaluación— son de cada centro y de
+   * cada comunidad, así que viven aquí y no en el código. Ver `src/lib/asuntos.js`.
+   */
+  asuntos?: AsuntosConfig
   /** Versión del esquema de datos, para migraciones futuras. */
   schemaVersion: number
   updatedAt: string // ISO datetime

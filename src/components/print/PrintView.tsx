@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { PUBLIC_BASE_URL } from '../../config'
 import { useStore } from '../../state/CalendarStore'
 import { downloadICS } from '../../lib/ics'
 import { occurrenceLabels, useI18n } from '../../i18n'
 import PrintSheet from './PrintSheet'
+import { computeAsuntos } from '../../lib/asuntos'
+import { AsuntosToggle, asuntosVista, useAsuntosVisible } from './asuntosVista'
 
 type Mode = 'lista' | 'compacto'
 
@@ -37,6 +39,10 @@ export default function PrintView() {
       vivo = false
     }
   }, [token])
+
+  const [verAsuntos, setVerAsuntos] = useAsuntosVisible()
+  // Siempre sobre el calendario completo, sea cual sea el perfil que se imprime.
+  const filasAsuntos = useMemo(() => (current?.asuntos ? computeAsuntos(current).rows : null), [current])
 
   if (!current) return <Navigate to="/" replace />
   const cal = current
@@ -97,6 +103,17 @@ export default function PrintView() {
               {t('print.analysisToggle')}
             </label>
           </div>
+          {filasAsuntos && (
+            <div className="field" style={{ margin: 0 }}>
+              <AsuntosToggle
+                checked={verAsuntos}
+                onChange={(v) => {
+                  setVerAsuntos(v)
+                  if (v) setMode('compacto')
+                }}
+              />
+            </div>
+          )}
           <div className="field" style={{ margin: 0, marginLeft: 'auto', alignSelf: 'flex-end' }}>
             <div className="btn-group">
               <button className="btn btn-primary" onClick={handlePrint}>
@@ -120,6 +137,7 @@ export default function PrintView() {
         mode={mode}
         showAnalysis={showAnalysis}
         viewUrl={viewUrl}
+        asuntos={verAsuntos ? asuntosVista(filasAsuntos) : null}
       />
     </>
   )

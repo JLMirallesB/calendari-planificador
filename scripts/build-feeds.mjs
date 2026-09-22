@@ -1,6 +1,8 @@
 // Genera, a partir de los calendarios publicados:
 //   - feeds ICS de suscripción en public/feeds/  (<id>-all.ics y <id>-<perfil>.ics)
 //   - JSON de VISTA (solo lectura) filtrados por perfil en public/v/  (<id>-<perfil>.json)
+//   - asuntos particulares en public/feeds/ (<id>-asuntos.csv, .json y .meta.json), solo para los
+//     calendarios que traen el bloque `asuntos` en su JSON
 // Se ejecuta automáticamente antes del build (script "prebuild" en package.json).
 //
 // Fuentes:
@@ -14,6 +16,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, rmSync
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { buildICS } from '../src/lib/icsCore.js'
+import { buildAsuntosCSV, buildAsuntosMeta, computeAsuntos } from '../src/lib/asuntos.js'
 import { deriveSite } from '../src/lib/site.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -65,6 +68,37 @@ function writeFeeds(cal, id, name) {
 }
 
 /**
+ * Asuntos particulares: un ÚNICO fichero por calendario, calculado sobre el calendario completo.
+ * Nada de variantes por perfil: filtrar por perfil escondería las sesiones de evaluación y daría
+ * por pedibles días que están bloqueados. Lo que impide que salga nada interno es la lista blanca
+ * de la descripción, dentro de `asuntos.js`.
+ *
+ * Solo para los calendarios que traen el bloque `asuntos`, y solo si tienen fechas de curso:
+ * mejor no publicar nada que publicar un fichero incompleto que alguien se crea.
+ */
+function writeAsuntos(cal, id, generatedAt) {
+  if (!cal.asuntos || !id) return null
+  const resultado = computeAsuntos(cal)
+  if (!resultado.rango) {
+    console.warn(`[build-feeds] «${cal.name || id}» pide asuntos particulares pero no tiene fechas de curso; se omite.`)
+    return null
+  }
+  writeFileSync(join(feedsDir, `${id}-asuntos.csv`), buildAsuntosCSV(resultado.rows))
+  writeFileSync(join(feedsDir, `${id}-asuntos.json`), JSON.stringify(resultado.rows, null, 2))
+  writeFileSync(
+    join(feedsDir, `${id}-asuntos.meta.json`),
+    JSON.stringify(buildAsuntosMeta(cal, resultado, generatedAt), null, 2),
+  )
+  if (resultado.reglasIncompletas.length) {
+    console.warn(
+      `[build-feeds] «${cal.name || id}»: ${resultado.reglasIncompletas.length} regla(s) de asuntos sin calcular → ` +
+        resultado.reglasIncompletas.join(', '),
+    )
+  }
+  return { file: `${id}-asuntos.csv`, pedibles: resultado.rows.filter((r) => r.pedible).length, total: resultado.rows.length }
+}
+
+/**
  * Escribe calendars-unlisted/FEEDS.md: índice PRIVADO con las URLs de suscripción y de vista
  * de los calendarios no listados. Vive fuera de public/ → no se despliega.
  */
@@ -85,6 +119,11 @@ function writeFeedsIndex(unlisted) {
   }
   for (const c of unlisted) {
     lines.push(`## ${c.name}`, '')
+    if (c.asuntos) {
+      lines.push(`- **Asuntos particulares** (CSV para la hoja de gestión)`)
+      lines.push(`  - ${HTTPS_BASE}feeds/${c.asuntos.file}`)
+      lines.push('')
+    }
     for (const fd of c.feeds) {
       lines.push(`- **${fd.label}**`)
       lines.push(`  - Suscripción: \`${WEBCAL_BASE}feeds/${fd.feedFile}\``)
@@ -96,11 +135,16 @@ function writeFeedsIndex(unlisted) {
 }
 
 function main() {
+  // La misma marca para todos los ficheros de un build: `generatedAt` es informativo, y lo que
+  // sirve para detectar datos viejos es el `updatedAt` de cada calendario.
+  const generatedAt = new Date().toISOString()
   mkdirSync(feedsDir, { recursive: true })
   mkdirSync(viewDir, { recursive: true })
 
   // Limpia artefactos previos (conserva .gitkeep) para no dejar ficheros huérfanos.
-  for (const f of readdirSync(feedsDir)) if (f.endsWith('.ics')) rmSync(join(feedsDir, f))
+  for (const f of readdirSync(feedsDir)) {
+    if (f.endsWith('.ics') || f.endsWith('.csv') || f.endsWith('.json')) rmSync(join(feedsDir, f))
+  }
   for (const f of readdirSync(viewDir)) if (f.endsWith('.json')) rmSync(join(viewDir, f))
 
   let count = 0
@@ -117,6 +161,7 @@ function main() {
         }
         const cal = JSON.parse(readFileSync(file, 'utf-8'))
         count += writeFeeds(cal, entry.id, entry.name || cal.name).length
+        writeAsuntos(cal, entry.id, generatedAt)
       }
     } else {
       console.warn('[build-feeds] index.json no es un array; se omite.')
@@ -132,10 +177,14 @@ function main() {
       if (!f.endsWith('.json')) continue
       const cal = JSON.parse(readFileSync(join(unlistedDir, f), 'utf-8'))
       const feeds = writeFeeds(cal, cal.id, cal.name || 'Calendario')
+      const asuntos = writeAsuntos(cal, cal.id, generatedAt)
       if (feeds.length) {
         count += feeds.length
-        unlisted.push({ name: cal.name || cal.id, id: cal.id, feeds })
+        unlisted.push({ name: cal.name || cal.id, id: cal.id, feeds, asuntos })
         console.log(`[build-feeds] No listado «${cal.name || cal.id}»:`)
+        if (asuntos) {
+          console.log(`    asuntos:   ${HTTPS_BASE}feeds/${asuntos.file}   (${asuntos.pedibles}/${asuntos.total} días solicitables)`)
+        }
         for (const fd of feeds) {
           console.log(`    suscribir: ${WEBCAL_BASE}feeds/${fd.feedFile}   (${fd.label})`)
           console.log(`    ver:       ${HTTPS_BASE}#/ver/${fd.token}`)
